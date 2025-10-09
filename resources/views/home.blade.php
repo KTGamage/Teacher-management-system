@@ -300,9 +300,10 @@
                     </div>
                     
                     <div class="button-container">
-                        <a href="https://www.google.com" style="text-decoration: none; width: 100%; max-width: 250px;">
-                            <button class="loginbtn">Login</button>
+                        <a href="{{ route('login') }}" style="text-decoration: none; width: 100%; max-width: 250px;">
+                         <button class="loginbtn">Login</button>
                         </a>
+
                         <a href="https://www.google.com" style="text-decoration: none; width: 100%; max-width: 250px;">
                             <button class="registerbtn">Register</button>
                         </a>
