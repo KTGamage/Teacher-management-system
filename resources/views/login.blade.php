@@ -383,7 +383,6 @@
                 font-size: 0.95em;
             }
 
-            /* Tablet adjustments */
             @media (max-width: 992px) {
                 .headerSection {
                     flex-direction: column;
@@ -421,7 +420,6 @@
                 }
             }
 
-            /* Mobile adjustments */
             @media (max-width: 768px) {
                 .headerSection {
                     padding: 15px 20px;
@@ -460,7 +458,6 @@
                 }
             }
 
-            /* Small mobile adjustments */
             @media (max-width: 480px) {
                 .nav-section {
                     gap: 12px;
@@ -494,7 +491,7 @@
         
         <div class="headerSection">
             <div class="logo-section">
-                <img class="logo" class="logo" src="{{ asset('images/logo_home.png') }}" alt="School Logo">
+                <img class="logo" src="{{ asset('images/logo_home.png') }}" alt="School Logo">
                 <div class="title-section">
                     <h1>Teacher Management System</h1>
                     <h2>Karandeniya Central College</h2>
@@ -512,16 +509,16 @@
             <div class="glassBox">
                 <div class="login-section">
                     <div class="role-tabs">
-                        <div class="role-tab active">Teacher</div>
-                        <div class="role-tab">Admin</div>
-                        <div class="role-tab">Principal</div>
-                        <div class="role-tab">Section Head</div>
+                        <div class="role-tab active" data-role="teacher">Teacher</div>
+                        <div class="role-tab" data-role="admin">Admin</div>
+                        <div class="role-tab" data-role="principal">Principal</div>
+                        <div class="role-tab" data-role="sectionhead">Section Head</div>
                     </div>
                     
                     <form>
                         <div class="form-group">
-                            <label for="teacher-id">Teacher ID</label>
-                            <input type="text" id="teacher-id" name="teacher-id" placeholder="Enter Teacher ID" required>
+                            <label for="user-id" id="id-label">Teacher ID</label>
+                            <input type="text" id="user-id" name="user-id" placeholder="Enter Teacher ID" required>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -537,10 +534,10 @@
                 <div class="vertical-divider"></div>
 
                 <div class="info-section">
-                    <h2>Login</h2>
-                    <p>Enter your Teacher credentials to log in to the system</p>
+                    <h2 id="info-title">Login</h2>
+                    <p id="info-description">Enter your Teacher credentials to log in to the system</p>
                     <div class="info-illustration">
-                        <img src="{{ asset('images/login_image.png') }}">
+                        <img src="{{ asset('images/login_image.png') }}"  alt="Login Illustration">
                     </div>
                 </div>
             </div>
@@ -565,5 +562,55 @@
                 </div>
             </div>
         </footer>
+
+        <script>
+            const roleTabs = document.querySelectorAll('.role-tab');
+            const idLabel = document.getElementById('id-label');
+            const userIdInput = document.getElementById('user-id');
+            const infoTitle = document.getElementById('info-title');
+            const infoDescription = document.getElementById('info-description');
+
+            const roleConfig = {
+                teacher: {
+                    label: 'Teacher ID',
+                    placeholder: 'Enter Teacher ID',
+                    title: 'Login',
+                    description: 'Enter your Teacher credentials to log in to the system'
+                },
+                admin: {
+                    label: 'Admin ID',
+                    placeholder: 'Enter Admin ID',
+                    title: 'Admin Login',
+                    description: 'Enter your Admin credentials to access the system'
+                },
+                principal: {
+                    label: 'Principal ID',
+                    placeholder: 'Enter Principal ID',
+                    title: 'Principal Login',
+                    description: 'Enter your Principal credentials to log in to the system'
+                },
+                sectionhead: {
+                    label: 'Section Head ID',
+                    placeholder: 'Enter Section Head ID',
+                    title: 'Section Head Login',
+                    description: 'Enter your Section Head credentials to access the system'
+                }
+            };
+
+            roleTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    roleTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const role = this.getAttribute('data-role');
+                    const config = roleConfig[role];
+                    
+                    idLabel.textContent = config.label;
+                    userIdInput.placeholder = config.placeholder;
+                    infoTitle.textContent = config.title;
+                    infoDescription.textContent = config.description;
+                });
+            });
+        </script>
     </body>
 </html>
