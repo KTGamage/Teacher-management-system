@@ -38,6 +38,25 @@
                 opacity: 0.8;
             }
 
+            .logo {
+                position: absolute;
+                top: 0;
+                margin-left: 50px;
+                z-index: 10;
+                width: clamp(50px, 8vw, 120px);
+                height: auto;
+                max-width: 150px;
+                border-radius: 0;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                opacity: 1;
+                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+            }
+
+            .logo:hover {
+                transform: scale(1.05);
+                filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+            }
+
             .content-wrapper {
                 position: relative;
                 z-index: 1;
@@ -195,8 +214,60 @@
                 font-size: 0.95em;
             }
 
+            /* Small mobile screens */
+            @media (max-width: 480px) {
+                .logo {
+                    top: 0;
+                    left: 0;
+                    width: 50px;
+                    border-radius: 0;
+                }
+
+                .text1 {
+                    font-size: 22px;
+                    margin-top: 60px;
+                }
+
+                .text2 {
+                    font-size: 14px;
+                }
+
+                .text3 {
+                    font-size: 13px;
+                }
+
+                .loginbtn, .registerbtn {
+                    height: 45px;
+                    font-size: 15px;
+                }
+
+                .content-wrapper {
+                    padding: 15px;
+                }
+
+                footer {
+                    padding: 20px 15px;
+                    font-size: 12px;
+                }
+            }
+
+            /* Medium mobile to tablet */
+            @media (min-width: 481px) and (max-width: 767px) {
+                .logo {
+                    top: 0;
+                    left: 0;
+                    width: clamp(60px, 10vw, 90px);
+                }
+            }
+
             /* Tablet and larger screens */
             @media (min-width: 768px) {
+                .logo {
+                    top: 0;
+                    left: 0;
+                    width: clamp(80px, 9vw, 110px);
+                }
+
                 .welcome_section {
                     flex-direction: row;
                     flex-wrap: wrap;
@@ -232,6 +303,12 @@
 
             /* Desktop screens */
             @media (min-width: 1024px) {
+                .logo {
+                    top: 0;
+                    left: 0;
+                    width: clamp(90px, 8vw, 120px);
+                }
+
                 .content-wrapper {
                     display: flex;
                     flex-direction: column;
@@ -247,32 +324,11 @@
                 }
             }
 
-            /* Small mobile screens */
-            @media (max-width: 480px) {
-                .text1 {
-                    font-size: 22px;
-                }
-
-                .text2 {
-                    font-size: 14px;
-                }
-
-                .text3 {
-                    font-size: 13px;
-                }
-
-                .loginbtn, .registerbtn {
-                    height: 45px;
-                    font-size: 15px;
-                }
-
-                .content-wrapper {
-                    padding: 15px;
-                }
-
-                footer {
-                    padding: 20px 15px;
-                    font-size: 12px;
+            /* Large desktop screens */
+            @media (min-width: 1440px) {
+                .logo {
+                    left: 0;
+                    width: 120px;
                 }
             }
         </style>
@@ -281,7 +337,8 @@
         <div class="background_img">
             <img src="{{ asset('images/schoolImage.jpeg') }}" alt="School Background">
         </div>
-
+        
+        <img class="logo" src="{{ asset('images/logo_home.png') }}" alt="School Logo">
 
         <div class="content-wrapper">
             <div class="text1">
@@ -333,3 +390,4 @@
         </footer>
     </body>
 </html>
+
