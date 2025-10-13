@@ -6,12 +6,16 @@
         <title>Teacher Management System</title>
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Google Font: Roboto -->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
         <style>
             * {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
+                font-family: 'Roboto', sans-serif; /* 👈 Apply Roboto globally */
             }
 
             body {
@@ -67,7 +71,7 @@
             .text1 {
                 color: white;         
                 font-size: clamp(24px, 5vw, 36px);
-                font-weight: bold;
+                font-weight: 700;
                 text-align: center;
                 line-height: 1.2;
                 margin-top: 20px;
@@ -77,7 +81,7 @@
             .text2 {
                 color: white;         
                 font-size: clamp(16px, 3vw, 20px);
-                font-weight: bold;
+                font-weight: 500;
                 text-align: center;
                 margin-bottom: 30px;
             }
@@ -89,7 +93,6 @@
                 justify-content: center;
                 gap: 20px;
                 padding: 20px;
-                max-width: 1200px;
                 margin: 0 auto;
             }
 
@@ -102,12 +105,27 @@
 
             .text3 {
                 color: white;         
-                font-size: clamp(14px, 2.5vw, 18px);
-                font-weight: bold;
+                font-size: clamp(14px, 2.5vw, 20px);
+                font-weight: 1000;
                 text-align: center;
                 margin-bottom: 20px;
                 padding: 0 15px;
                 line-height: 1.5;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .text4 {
+                color: white;         
+                font-size: clamp(14px, 2.5vw, 18px);
+                font-weight: 500;
+                text-align: LEFT;
+                margin-bottom: 20px;
+                padding: 0 15px;
+                line-height: 1.5;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .button-container {
@@ -122,7 +140,7 @@
             .loginbtn, .registerbtn {
                 color: white;
                 font-size: clamp(16px, 2.5vw, 18px);
-                font-weight: bold;
+                font-weight: 500;
                 border-radius: 20px;
                 width: 100%;
                 max-width: 250px;
@@ -155,6 +173,10 @@
                 background-color: #f0f0f0;
                 transform: translateY(-2px);
                 box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+            }
+
+            .welcome_section > div {
+                margin-top: -220px;
             }
 
             footer {
@@ -214,13 +236,12 @@
                 font-size: 0.95em;
             }
 
-            /* Small mobile screens */
+            /* Responsive adjustments */
             @media (max-width: 480px) {
                 .logo {
                     top: 0;
                     left: 0;
                     width: 50px;
-                    border-radius: 0;
                 }
 
                 .text1 {
@@ -249,25 +270,13 @@
                     padding: 20px 15px;
                     font-size: 12px;
                 }
-            }
 
-            /* Medium mobile to tablet */
-            @media (min-width: 481px) and (max-width: 767px) {
-                .logo {
-                    top: 0;
-                    left: 0;
-                    width: clamp(60px, 10vw, 90px);
+                .welcome_section > div {
+                    margin-top: -15px;
                 }
             }
 
-            /* Tablet and larger screens */
             @media (min-width: 768px) {
-                .logo {
-                    top: 0;
-                    left: 0;
-                    width: clamp(80px, 9vw, 110px);
-                }
-
                 .welcome_section {
                     flex-direction: row;
                     flex-wrap: wrap;
@@ -295,20 +304,9 @@
                 .content-wrapper {
                     padding: 40px;
                 }
-
-                footer {
-                    padding: 25px 20px;
-                }
             }
 
-            /* Desktop screens */
             @media (min-width: 1024px) {
-                .logo {
-                    top: 0;
-                    left: 0;
-                    width: clamp(90px, 8vw, 120px);
-                }
-
                 .content-wrapper {
                     display: flex;
                     flex-direction: column;
@@ -323,14 +321,6 @@
                     margin-top: 40px;
                 }
             }
-
-            /* Large desktop screens */
-            @media (min-width: 1440px) {
-                .logo {
-                    left: 0;
-                    width: 120px;
-                }
-            }
         </style>
     </head>
     <body>
@@ -342,7 +332,7 @@
 
         <div class="content-wrapper">
             <div class="text1">
-                <p>Teacher Management<br> System</p>
+                <p>Teacher Management System</p>
             </div>
             <div class="text2">
                 <p>Karandeniya Central College</p>
@@ -353,7 +343,10 @@
                 
                 <div>
                     <div class="text3">
-                        <p>Welcome to the Teacher Management System<br>Karandeniya Central College</p>
+                        <p>Welcome to the Teacher Management System<br> Karandeniya Central College</p>
+                    </div>
+                    <div class="text4">
+                        <p>We are pleased to provide you with<br> a convenient platform where you can access all your<br> essential services and resources in one place.</p>
                     </div>
                     
                     <div class="button-container">
@@ -390,4 +383,3 @@
         </footer>
     </body>
 </html>
-
