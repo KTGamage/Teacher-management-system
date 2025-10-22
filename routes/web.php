@@ -23,4 +23,6 @@ Route::get('/login', function () {
     return view('.login'); // Make sure you have resources/views/auth/login.blade.php
 })->name('login');
 
-
+Route::get('/teacher-dashboard', function () {
+    return view('teacherDashboard');
+});
