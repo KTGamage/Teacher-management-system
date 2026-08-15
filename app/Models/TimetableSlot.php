@@ -13,6 +13,7 @@ class TimetableSlot extends Model
         'end_time',
         'section_subject_id',
         'teacher_id',
+        'class_room_id',
     ];
 
     protected $casts = [
@@ -28,5 +29,10 @@ class TimetableSlot extends Model
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class);
+    }
+
+    public function classRoom(): BelongsTo
+    {
+        return $this->belongsTo(ClassRoom::class);
     }
 }

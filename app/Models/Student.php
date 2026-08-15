@@ -17,6 +17,7 @@ class Student extends Model
         'guardian_name',
         'guardian_contact',
         'section_id',
+        'class_room_id',
     ];
 
     protected $casts = [
@@ -31,5 +32,10 @@ class Student extends Model
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class);
+    }
+
+    public function classRoom(): BelongsTo
+    {
+        return $this->belongsTo(ClassRoom::class);
     }
 }

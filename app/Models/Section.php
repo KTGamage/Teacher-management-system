@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Section extends Model
 {
-    protected $fillable = ['name', 'code', 'section_head_id'];
+    protected $fillable = ['name', 'code', 'academic_year', 'section_head_id', 'is_active'];
 
     public function head(): BelongsTo
     {
@@ -31,5 +31,10 @@ class Section extends Model
     public function sectionSubjects(): HasMany
     {
         return $this->hasMany(SectionSubject::class);
+    }
+
+    public function classes(): HasMany
+    {
+        return $this->hasMany(ClassRoom::class);
     }
 }
