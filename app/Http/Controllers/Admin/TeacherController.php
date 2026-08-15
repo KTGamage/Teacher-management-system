@@ -28,6 +28,8 @@ class TeacherController extends Controller
     {
         $validated = $request->validated();
 
+        $qualifications = $this->parseQualifications($validated['qualifications'] ?? null);
+
         $user = User::create([
             'name' => $validated['full_name'],
             'email' => $validated['email'],
@@ -41,7 +43,7 @@ class TeacherController extends Controller
             'full_name' => $validated['full_name'],
             'contact_number' => $validated['contact_number'],
             'address' => $validated['address'] ?? null,
-            'qualifications' => $validated['qualifications'] ?? null,
+            'qualifications' => $qualifications,
             'specialization' => $validated['specialization'] ?? null,
             'joining_date' => $validated['joining_date'] ?? null,
         ]);
@@ -52,6 +54,9 @@ class TeacherController extends Controller
     public function edit(Teacher $teacher)
     {
         $teacher->load('user');
+         if (is_array($teacher->qualifications)) {
+            $teacher->qualifications = implode(', ', $teacher->qualifications);
+        }
         return Inertia::render('Admin/Teachers/Edit', [
             'teacher' => $teacher,
         ]);
@@ -65,6 +70,11 @@ class TeacherController extends Controller
         $user = $teacher->user;
         $user->name = $validated['full_name'];
         $user->email = $validated['email'];
+
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
@@ -82,6 +92,19 @@ class TeacherController extends Controller
         ]);
 
         return redirect()->route('admin.teachers.index')->with('success', 'Teacher updated.');
+    }
+
+    private function parseQualifications(?string $qualifications): ?array
+    {
+        if (empty($qualifications)) {
+            return null;
+        }
+
+        $parts = explode(',', $qualifications);
+        $parts = array_map('trim', $parts);
+        $parts = array_filter($parts, fn($part) => $part !== '');
+
+        return array_values($parts);
     }
 
     public function destroy(Teacher $teacher): RedirectResponse

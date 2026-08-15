@@ -21,7 +21,7 @@ class StoreTeacherRequest extends FormRequest
             'full_name' => ['required', 'string', 'max:255'],
             'contact_number' => ['required', 'string', 'max:20'],
             'address' => ['nullable', 'string'],
-            'qualifications' => ['nullable', 'json'],
+            'qualifications' => ['nullable', 'string'],
             'specialization' => ['nullable', 'string', 'max:100'],
             'joining_date' => ['nullable', 'date'],
         ];
