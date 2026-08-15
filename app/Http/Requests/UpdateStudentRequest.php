@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreStudentRequest extends FormRequest
+class UpdateStudentRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,10 +14,14 @@ class StoreStudentRequest extends FormRequest
 
     public function rules(): array
     {
+        $student = $this->route('student');
+        $userId = $student->user_id;
+        $studentId = $student->id;
+
         return [
-            'email' => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:6'],
-            'registration_number' => ['required', 'string', 'unique:students,registration_number'],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($userId)],
+            'password' => ['nullable', 'string', 'min:6'],
+            'registration_number' => ['required', 'string', Rule::unique('students', 'registration_number')->ignore($studentId)],
             'full_name' => ['required', 'string', 'max:255'],
             'contact_number' => ['required', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'date'],
