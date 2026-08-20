@@ -1,15 +1,19 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
-  ChartBarIcon,
-  UsersIcon,
-  UserGroupIcon,
-  AcademicCapIcon,
-  BookOpenIcon,
-  CalendarIcon,
-  ClipboardIcon,
-  UserIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
+    ChartBarIcon,
+    UsersIcon,
+    UserGroupIcon,
+    AcademicCapIcon,
+    BookOpenIcon,
+    CalendarIcon,
+    ClipboardIcon,
+    UserIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    ChevronDoubleLeftIcon,
+    ChevronDoubleRightIcon,
+    CalendarDaysIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import type { ComponentType } from 'react';
 import AppLogo from '@/Components/AppLogo';
@@ -21,23 +25,19 @@ interface NavItem {
 }
 
 const adminLinks: NavItem[] = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: ChartBarIcon },
-  { name: 'Teachers', href: '/admin/teachers', icon: UsersIcon },
-  { name: 'Students', href: '/admin/students', icon: UserGroupIcon },
-  { name: 'Sections', href: '#', icon: AcademicCapIcon },
-  { name: 'Subjects', href: '#', icon: BookOpenIcon },
-];
-
-const teacherLinks: NavItem[] = [
-  { name: 'Dashboard', href: '/teacher/dashboard', icon: ChartBarIcon },
-  { name: 'My Timetable', href: '#', icon: CalendarIcon },
-  { name: 'Mark Entry', href: '#', icon: ClipboardIcon },
-  { name: 'Profile', href: '/profile', icon: UserIcon },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: ChartBarIcon },
+    { name: 'Teachers', href: '/admin/teachers', icon: UsersIcon },
+    { name: 'Students', href: '/admin/students', icon: UserGroupIcon },
+    { name: 'Sections', href: '/admin/sections', icon: AcademicCapIcon },
+    { name: 'Subjects', href: '/admin/subjects', icon: BookOpenIcon },
+    { name: 'Timetable', href: '/timetable', icon: CalendarIcon },
+    { name: 'Leaves', href: '/admin/leaves', icon: CalendarDaysIcon },
 ];
 
 const studentLinks: NavItem[] = [
   { name: 'Dashboard', href: '/student/dashboard', icon: ChartBarIcon },
-  { name: 'My Marks', href: '#', icon: ChartBarIcon },
+  { name: 'Timetable', href: '/student/timetable', icon: CalendarIcon },
+  { name: 'My Marks', href: '/student/marks', icon: ChartBarIcon },
   { name: 'Profile', href: '/profile', icon: UserIcon },
 ];
 
@@ -52,28 +52,33 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleMobile, onToggl
   const { url, props } = usePage();
   const user = (props.auth as any)?.user;
   const role = user?.role || 'teacher';
+
+  const teacherLinks: NavItem[] = [
+    { name: 'Dashboard', href: '/teacher/dashboard', icon: ChartBarIcon },
+    ...(user?.teacher?.is_section_head
+      ? [{ name: 'Timetable', href: '/timetable', icon: CalendarIcon }]
+      : []),
+    { name: 'My Timetable', href: '/teacher/timetable', icon: CalendarIcon },
+    ...(user?.teacher?.is_section_head
+      ? [{ name: 'Leave Approvals', href: '/teacher/section-leaves', icon: ClipboardIcon }]
+      : []),
+    { name: 'Mark Entry', href: '/teacher/mark-entry', icon: ClipboardIcon },
+    { name: 'My Leaves', href: '/teacher/leaves', icon: CalendarDaysIcon},
+    { name: 'Profile', href: '/profile', icon: UserIcon },
+  ];
+
   const links = role === 'admin' ? adminLinks : role === 'teacher' ? teacherLinks : studentLinks;
 
   const isActive = (href: string) => href !== '#' && url.startsWith(href);
 
   const sidebarContent = (isCollapsed: boolean) => (
     <div className="flex h-full flex-col bg-darkred text-white">
-      <div className="flex h-20 items-center justify-between border-b border-white/10 px-4">
+      {/* Logo at top */}
+      <div className="flex h-20 items-center justify-center border-b border-white/10 px-4">
         <AppLogo compact={isCollapsed} textClassName="text-white" />
-        <button
-          onClick={onToggleCollapse}
-          className="hidden rounded-lg border border-white/10 p-2 text-white/80 transition hover:bg-white/10 hover:text-white lg:block"
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? (
-            <ChevronRightIcon className="h-5 w-5" />
-          ) : (
-            <ChevronLeftIcon className="h-5 w-5" />
-          )}
-        </button>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-5">
         <div className="space-y-2">
           {links.map((link, index) => (
@@ -98,6 +103,51 @@ export default function Sidebar({ collapsed, mobileOpen, onToggleMobile, onToggl
           ))}
         </div>
       </nav>
+
+      {/* Toggle button at bottom */}
+      <div className="border-t border-white/10 p-3">
+        {/* <button
+            onClick={onToggleCollapse}
+            className="flex w-full items-center justify-center rounded-lg border border-white/10 p-2 text-white/80 transition hover:bg-white/10 hover:text-white"
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+            <span className="flex items-center gap-0">
+                {isCollapsed ? (
+                <>
+                    <ChevronDoubleRightIcon className="h-5 w-5" />
+                    <ChevronDoubleRightIcon className="h-5 w-5 -ml-1" />
+                </>
+                ) : (
+                <>
+                    <ChevronDoubleLeftIcon className="h-5 w-5" />
+                    <ChevronDoubleLeftIcon className="h-5 w-5 -ml-1" />
+                </>
+                )}
+            </span>
+        </button> */}
+        
+        <button
+  onClick={onToggleCollapse}
+  className="flex w-full items-center justify-center rounded-lg border border-white/10 p-2 text-white/80 transition hover:bg-white/10 hover:text-white"
+  aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+  title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+>
+  <span className="relative flex items-center">
+    {isCollapsed ? (
+      <>
+        <ChevronDoubleRightIcon className="h-5 w-5" />
+        <ChevronDoubleRightIcon className="h-5 w-5 -ml-2.5" />
+      </>
+    ) : (
+      <>
+        <ChevronDoubleLeftIcon className="h-5 w-5" />
+        <ChevronDoubleLeftIcon className="h-5 w-5 -ml-2.5" />
+      </>
+    )}
+  </span>
+</button>
+      </div>
     </div>
   );
 

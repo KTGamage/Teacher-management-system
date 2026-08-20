@@ -123,13 +123,16 @@ export default function Create() {
             {errors.specialization && <div className="field-error">{errors.specialization}</div>}
           </div>
           <div>
-            <label className="field-label">Qualifications (JSON)</label>
+            <label className="field-label">Qualifications (comma separated)</label>
             <input
               value={data.qualifications}
               onChange={e => setData('qualifications', e.target.value)}
-              placeholder='["BSc", "MEd"]'
+              placeholder="BSc, MEd, PGDE"
               className="field-input"
             />
+            <p className="mt-1 text-xs text-slate-500">
+              Separate multiple qualifications with a comma.
+            </p>
             {errors.qualifications && <div className="field-error">{errors.qualifications}</div>}
           </div>
         </div>

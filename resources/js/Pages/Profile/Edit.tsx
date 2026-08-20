@@ -3,6 +3,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import toast from 'react-hot-toast';
 import PageHeader from '@/Components/PageHeader';
 import PasswordInput from '@/Components/PasswordInput';
+import { UserIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
 
 export default function Edit() {
   const { auth } = usePage().props as any;
@@ -10,6 +12,7 @@ export default function Edit() {
   const teacher = user.teacher;
   const student = user.student;
 
+  // Profile form (existing data)
   const profileForm = useForm({
     name: user.name,
     email: user.email,
@@ -29,16 +32,24 @@ export default function Edit() {
     } : {}),
   });
 
+  // Password form
   const passwordForm = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
   });
 
+  // Photo upload form
+  const photoForm = useForm({
+    photo: null as File | null,
+  });
+  const [photoPreview, setPhotoPreview] = useState<string | null>(user.profile_photo_url || null);
+
   const updateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     profileForm.patch('/profile', {
       onSuccess: () => toast.success('Profile updated.'),
+      onError: () => toast.error('Could not update profile.'),
     });
   };
 
@@ -46,6 +57,27 @@ export default function Edit() {
     e.preventDefault();
     passwordForm.put('/password', {
       onSuccess: () => toast.success('Password updated.'),
+      onError: () => toast.error('Check your current password.'),
+    });
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      photoForm.setData('photo', file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadPhoto = (e: React.FormEvent) => {
+    e.preventDefault();
+    photoForm.post('/profile/photo', {
+      onSuccess: () => {
+        toast.success('Profile photo updated.');
+        photoForm.reset('photo');
+        // Update preview with new URL from server (handled by redirect? We'll just refresh user)
+      },
+      onError: () => toast.error('Could not upload photo.'),
     });
   };
 
@@ -58,6 +90,40 @@ export default function Edit() {
       />
 
       <div className="mx-auto max-w-3xl space-y-6">
+        {/* Profile Photo */}
+        <div className="panel space-y-6 p-6">
+          <div>
+            <h2 className="text-lg font-bold text-slate-950">Profile Photo</h2>
+            <p className="mt-1 text-sm text-slate-500">Upload a photo to personalise your account.</p>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100 ring-2 ring-darkred/20">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-slate-400">
+                    <UserIcon className="h-10 w-10" />
+                </div>
+              )}
+            </div>
+
+            <form onSubmit={uploadPhoto} className="flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="mb-3 block w-full text-sm text-slate-500 file:mr-4 file:rounded-lg file:border-0 file:bg-darkred file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-red-800"
+              />
+              {photoForm.errors.photo && <div className="field-error">{photoForm.errors.photo}</div>}
+              <button type="submit" disabled={photoForm.processing || !photoForm.data.photo} className="secondary-button">
+                Upload Photo
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Profile Information */}
         <form onSubmit={updateProfile} className="panel space-y-6 p-6">
           <div>
             <h2 className="text-lg font-bold text-slate-950">Profile Information</h2>
@@ -189,6 +255,7 @@ export default function Edit() {
           </div>
         </form>
 
+        {/* Change Password */}
         <form onSubmit={updatePassword} className="panel space-y-6 p-6">
           <div>
             <h2 className="text-lg font-bold text-slate-950">Change Password</h2>

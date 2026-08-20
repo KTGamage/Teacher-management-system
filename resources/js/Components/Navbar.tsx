@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { Link, usePage } from '@inertiajs/react';
-import { Bars3Icon, ChevronRightIcon, HomeIcon } from '@heroicons/react/20/solid';
+import { Bars3Icon, ChevronRightIcon, HomeIcon, UserIcon } from '@heroicons/react/20/solid';
 
 interface Breadcrumb {
   label: string;
@@ -26,11 +26,12 @@ export default function Navbar({ breadcrumbs = [], onToggleSidebar, onToggleMobi
   const crumbs = breadcrumbs.length > 0 ? breadcrumbs : generatedCrumbs;
 
   return (
-    <header className="border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+    <header className="border-b border-white/10 bg-darkred shadow-md">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex min-w-0 items-center space-x-3">
+          {/* Mobile toggle */}
           <button
-            className="rounded-lg border border-slate-200 p-2 text-slate-700 transition hover:bg-slate-50 lg:hidden"
+            className="rounded-lg border border-white/10 p-2 text-white/80 transition hover:bg-white/10 hover:text-white lg:hidden"
             onClick={onToggleMobile}
             aria-label="Open sidebar"
             title="Open sidebar"
@@ -38,8 +39,9 @@ export default function Navbar({ breadcrumbs = [], onToggleSidebar, onToggleMobi
             <Bars3Icon className="h-5 w-5" />
           </button>
 
+          {/* Desktop sidebar toggle */}
           <button
-            className="hidden rounded-lg border border-slate-200 p-2 text-slate-700 transition hover:bg-slate-50 lg:flex"
+            className="hidden rounded-lg border border-white/10 p-2 text-white/80 transition hover:bg-white/10 hover:text-white lg:flex"
             onClick={onToggleSidebar}
             aria-label="Toggle sidebar"
             title="Toggle sidebar"
@@ -48,21 +50,21 @@ export default function Navbar({ breadcrumbs = [], onToggleSidebar, onToggleMobi
           </button>
 
           <nav aria-label="Breadcrumb" className="min-w-0">
-            <ol className="flex min-w-0 items-center space-x-1 text-slate-500">
+            <ol className="flex min-w-0 items-center space-x-1 text-white/80">
               <li>
-                <Link href="/" className="text-slate-400 transition hover:text-darkred">
+                <Link href="/" className="text-white/60 transition hover:text-gold">
                   <HomeIcon className="h-5 w-5" />
                 </Link>
               </li>
               {crumbs.map((crumb, idx) => (
                 <li key={crumb.url || idx} className="flex min-w-0 items-center">
-                  <ChevronRightIcon className="h-5 w-5 text-slate-300" />
+                  <ChevronRightIcon className="h-5 w-5 text-white/30" />
                   {crumb.url && idx < crumbs.length - 1 ? (
-                    <Link href={crumb.url} className="ml-1 truncate text-sm font-medium text-slate-500 transition hover:text-darkred">
+                    <Link href={crumb.url} className="ml-1 truncate text-sm font-medium text-white/70 transition hover:text-gold">
                       {crumb.label}
                     </Link>
                   ) : (
-                    <span className="ml-1 truncate text-sm font-semibold text-slate-900">{crumb.label}</span>
+                    <span className="ml-1 truncate text-sm font-semibold text-gold">{crumb.label}</span>
                   )}
                 </li>
               ))}
@@ -72,9 +74,13 @@ export default function Navbar({ breadcrumbs = [], onToggleSidebar, onToggleMobi
 
         <div className="flex items-center">
           <Menu as="div" className="relative">
-            <Menu.Button className="flex items-center rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-darkred/25">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-darkred text-sm font-bold text-white shadow-sm">
-                {user?.name?.charAt(0).toUpperCase()}
+            <Menu.Button className="flex items-center rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gold/50">
+              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gold text-darkred text-sm font-bold shadow-sm">
+                {user?.profile_photo_url ? (
+                    <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                    ) : (
+                    <UserIcon className="h-5 w-5 text-darkred" />
+                )}
               </div>
             </Menu.Button>
             <Transition
