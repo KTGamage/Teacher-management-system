@@ -56,4 +56,16 @@ class User extends Authenticatable
     public function isAdmin(): bool { return $this->role === 'admin'; }
     public function isTeacher(): bool { return $this->role === 'teacher'; }
     public function isStudent(): bool { return $this->role === 'student'; }
+
+    protected $appends = ['profile_photo_url'];
+
+    /**
+     * Get the profile photo URL.
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo_path
+            ? asset('storage/' . $this->profile_photo_path)
+            : null;
+    }
 }

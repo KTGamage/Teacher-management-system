@@ -24,6 +24,10 @@ class Student extends Model
         'date_of_birth' => 'date',
     ];
 
+
+    /**
+     * @property-read \App\Models\User $user
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

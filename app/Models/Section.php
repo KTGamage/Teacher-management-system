@@ -37,4 +37,10 @@ class Section extends Model
     {
         return $this->hasMany(ClassRoom::class);
     }
+
+    public function teachers(): BelongsToMany
+    {
+        return $this->belongsToMany(Teacher::class, 'section_teacher')
+            ->withTimestamps();
+    }
 }

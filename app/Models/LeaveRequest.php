@@ -11,7 +11,9 @@ class LeaveRequest extends Model
         'teacher_id',
         'leave_type',
         'start_date',
+        'start_time',
         'end_date',
+        'end_time',
         'reason',
         'status',
         'section_head_approval',
@@ -25,6 +27,8 @@ class LeaveRequest extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
         'section_head_approval' => 'boolean',
         'section_head_approval_date' => 'datetime',
         'admin_approval' => 'boolean',
