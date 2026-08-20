@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password', [ProfileController::class, 'changePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.photo');
 
     // Admin routes
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
@@ -80,6 +81,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/sections/{section}/classes', [SectionController::class, 'storeClass'])->name('sections.classes.store');
         Route::delete('/classes/{classRoom}', [SectionController::class, 'destroyClass'])->name('classes.destroy');
 
+        Route::get('/sections/{section}/teachers', [SectionController::class, 'teachers'])->name('sections.teachers');
+        Route::post('/sections/{section}/teachers', [SectionController::class, 'attachTeacher'])->name('sections.teachers.attach');
+        Route::delete('/sections/{section}/teachers/{teacher}', [SectionController::class, 'detachTeacher'])->name('sections.teachers.detach');
+
 
         // Admin Marks for student
         Route::get('/students/{student}/marks', [MarkController::class, 'adminStudentMarks'])
@@ -91,15 +96,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/leaves', [LeaveController::class, 'adminIndex'])->name('leaves.index');
         Route::put('/leaves/{leave}/approve', [LeaveController::class, 'adminApprove'])->name('leaves.approve');
         Route::put('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
+        Route::delete('/leaves/{leave}', [LeaveController::class, 'adminDestroy'])->name('leaves.destroy');
     });
 
     // Timetable management (section heads and admins)
     Route::middleware('role:admin,teacher')->prefix('timetable')->name('timetable.')->group(function () {
         Route::get('/', [TimetableController::class, 'index'])->name('index');
-        Route::get('/{section}', [TimetableController::class, 'show'])->name('show');
         Route::get('/{section}/section-subjects', [TimetableController::class, 'sectionSubjects'])->name('section.subjects');
         Route::post('/', [TimetableController::class, 'store'])->name('store');
         Route::delete('/{slot}', [TimetableController::class, 'destroy'])->name('destroy');
+        Route::put('/{slot}', [TimetableController::class, 'update'])->name('update');
+        Route::get('/{section}', [TimetableController::class, 'show'])->name('show');
     });
 
     // Teacher routes
@@ -116,9 +123,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/leaves', [LeaveController::class, 'teacherIndex'])->name('leaves.index');
         Route::get('/leaves/create', [LeaveController::class, 'create'])->name('leaves.create');
         Route::post('/leaves', [LeaveController::class, 'store'])->name('leaves.store');
+        Route::get('/leaves/{leave}/edit', [LeaveController::class, 'edit'])->name('leaves.edit');
+        Route::put('/leaves/{leave}', [LeaveController::class, 'update'])->name('leaves.update');
+        Route::delete('/leaves/{leave}', [LeaveController::class, 'destroy'])->name('leaves.destroy');
 
         // Section Head approval (teacher can approve if they are section head)
-        Route::put('/leaves/{leave}/section-approve', [LeaveController::class, 'sectionApprove'])->name('leaves.sectionApprove');
+        Route::get('/section-leaves', [LeaveController::class, 'sectionHeadIndex'])->name('section-leaves.index');
+        Route::put('/section-leaves/{leave}/forward', [LeaveController::class, 'sectionForward'])->name('section-leaves.forward');
+        Route::put('/section-leaves/{leave}/approve', [LeaveController::class, 'sectionFinalApprove'])->name('section-leaves.approve');
+        Route::put('/section-leaves/{leave}/reject', [LeaveController::class, 'sectionReject'])->name('section-leaves.reject');
+        Route::delete('/section-leaves/{leave}', [LeaveController::class, 'sectionDestroy'])->name('section-leaves.destroy');
     });
 
     // Student routes
@@ -129,5 +143,6 @@ Route::middleware('auth')->group(function () {
         // Student Marks
         Route::get('/marks', [MarkController::class, 'studentMarks'])->name('marks.index');
         Route::get('/marks/pdf', [MarkController::class, 'downloadPdf'])->name('marks.pdf');
+        Route::get('/marks/pdf', [MarkController::class, 'studentDownloadPdf'])->name('marks.pdf');
     });
 });
