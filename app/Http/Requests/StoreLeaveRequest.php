@@ -16,7 +16,9 @@ class StoreLeaveRequest extends FormRequest
         return [
             'leave_type' => ['required', 'in:annual,sick,casual,duty,other'],
             'start_date' => ['required', 'date'],
+            'start_time' => ['nullable', 'date_format:H:i'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'end_time' => ['nullable', 'date_format:H:i', 'required_with:start_time'],
             'reason' => ['required', 'string'],
         ];
     }
