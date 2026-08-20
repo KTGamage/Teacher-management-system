@@ -42,6 +42,14 @@ const formatTime = (time: string | null | undefined) => {
   return time.substring(0, 5);
 };
 
+// Status label & color mapping
+const statusMeta: Record<string, { label: string; className: string }> = {
+  pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
+  section_approved: { label: 'Forwarded to Admin', className: 'bg-blue-100 text-blue-800' },
+  admin_approved: { label: 'Approved', className: 'bg-green-100 text-green-800' },
+  rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },
+};
+
 export default function SectionLeaves({ leaves }: Props) {
   const { put, delete: destroy, processing } = useForm();
 
@@ -148,82 +156,75 @@ export default function SectionLeaves({ leaves }: Props) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {leaves.map((leave) => (
-                  <tr key={leave.id} className="transition hover:bg-slate-50">
-                    <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-slate-900">
-                      {leave.teacher.full_name}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-slate-500">
-                      {leave.leave_type}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-slate-500">
-                      {formatDate(leave.start_date)}
-                      {formatTime(leave.start_time) && (
-                        <span className="ml-1 text-xs text-slate-400">at {formatTime(leave.start_time)}</span>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm text-slate-500">
-                      {formatDate(leave.end_date)}
-                      {formatTime(leave.end_time) && (
-                        <span className="ml-1 text-xs text-slate-400">at {formatTime(leave.end_time)}</span>
-                      )}
-                    </td>
-                    <td className="max-w-xs truncate px-4 py-2 text-sm text-slate-500">
-                      {leave.reason}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-                          leave.status === 'admin_approved'
-                            ? 'bg-green-100 text-green-800'
-                            : leave.status === 'section_approved'
-                            ? 'bg-blue-100 text-blue-800'
-                            : leave.status === 'rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {leave.status}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        {leave.status === 'pending' ? (
-                          <>
-                            <button
-                              onClick={() => handleApprove(leave.id)}
-                              className="text-green-600 hover:text-green-800 transition"
-                              title="Approve directly"
-                            >
-                              <CheckCircleIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => handleForward(leave.id)}
-                              className="text-blue-600 hover:text-blue-800 transition"
-                              title="Forward to admin"
-                            >
-                              <ArrowRightCircleIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => handleReject(leave.id)}
-                              className="text-red-600 hover:text-red-800 transition"
-                              title="Reject"
-                            >
-                              <XCircleIcon className="h-5 w-5" />
-                            </button>
-                          </>
-                        ) : null}
-                        <button
-                          onClick={() => handleDelete(leave.id)}
-                          className="text-slate-400 hover:text-red-600 transition"
-                          title="Delete request"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {leaves.map((leave) => {
+                  const meta = statusMeta[leave.status] || { label: leave.status, className: 'bg-slate-100 text-slate-700' };
+                  return (
+                    <tr key={leave.id} className="transition hover:bg-slate-50">
+                      <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-slate-900">
+                        {leave.teacher.full_name}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-sm text-slate-500">
+                        {leave.leave_type}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-sm text-slate-500">
+                        {formatDate(leave.start_date)}
+                        {formatTime(leave.start_time) && (
+                          <span className="ml-1 text-xs text-slate-400">at {formatTime(leave.start_time)}</span>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-sm text-slate-500">
+                        {formatDate(leave.end_date)}
+                        {formatTime(leave.end_time) && (
+                          <span className="ml-1 text-xs text-slate-400">at {formatTime(leave.end_time)}</span>
+                        )}
+                      </td>
+                      <td className="max-w-xs truncate px-4 py-2 text-sm text-slate-500">
+                        {leave.reason}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-sm">
+                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${meta.className}`}>
+                          {meta.label}
+                        </span>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          {leave.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleApprove(leave.id)}
+                                className="text-green-600 hover:text-green-800 transition"
+                                title="Approve directly"
+                              >
+                                <CheckCircleIcon className="h-5 w-5" />
+                              </button>
+                              <button
+                                onClick={() => handleForward(leave.id)}
+                                className="text-blue-600 hover:text-blue-800 transition"
+                                title="Forward to admin"
+                              >
+                                <ArrowRightCircleIcon className="h-5 w-5" />
+                              </button>
+                              <button
+                                onClick={() => handleReject(leave.id)}
+                                className="text-red-600 hover:text-red-800 transition"
+                                title="Reject"
+                              >
+                                <XCircleIcon className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleDelete(leave.id)}
+                            className="text-slate-400 hover:text-red-600 transition"
+                            title="Delete request"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

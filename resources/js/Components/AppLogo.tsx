@@ -7,17 +7,21 @@ interface Props {
 }
 
 export default function AppLogo({ compact = false, className = '', textClassName = '' }: Props) {
-  return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-gold/50 bg-gold text-darkred shadow-sm">
-        <AcademicCapIcon className="h-6 w-6" />
-      </div>
-      {!compact && (
-        <div className={`min-w-0 ${textClassName}`}>
-          <p className="text-base font-bold leading-tight">KCC TMS</p>
-          <p className="text-xs font-medium leading-tight opacity-75">Karandeniya Central College</p>
+    return (
+        <div className={`flex items-center gap-3 ${className}`}>
+            <img
+                src="/images/school-logo.png"
+                alt="School Logo"
+                className={`object-contain ${compact ? 'h-10 w-10' : 'h-11 w-11'}`}
+            />
+            {!compact && (
+                <div className={`min-w-0 ${textClassName}`}>
+                    <p className="text-base font-bold leading-tight">KCC TMS</p>
+                    <p className="text-xs font-medium leading-tight opacity-75">
+                        Karandeniya Central College
+                    </p>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
