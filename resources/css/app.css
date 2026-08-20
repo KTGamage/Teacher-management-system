@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  /* :root {
     --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  } */
+
+  :root {
+    --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
   }
 
   html {

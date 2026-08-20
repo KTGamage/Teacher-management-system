@@ -12,7 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['var(--font-sans)'],
+                sans: ['Figtree', 'ui-sans-serif', 'system-ui', 'sans-serif'],
             },
             colors: {
                 darkred: '#8B0000',
