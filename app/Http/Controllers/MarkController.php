@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMarkRequest;
+use App\Models\Activity;
 use App\Models\Mark;
 use App\Models\Section;
 use App\Models\SectionSubject;
@@ -64,35 +65,41 @@ class MarkController extends Controller
     /**
      * Teacher: store/update marks.
      */
-    public function store(StoreMarkRequest $request)
-    {
-        $validated = $request->validated();
-        $teacher = $request->user()->teacher;
+        public function store(StoreMarkRequest $request)
+        {
+            $validated = $request->validated();
+            $teacher = $request->user()->teacher;
 
-        // Verify teacher is assigned to this section_subject
-        $sectionSubject = SectionSubject::findOrFail($validated['section_subject_id']);
-        if ($sectionSubject->teacher_id !== $teacher->id) {
-            abort(403);
+            $sectionSubject = SectionSubject::findOrFail($validated['section_subject_id']);
+            if ($sectionSubject->teacher_id !== $teacher->id) {
+                abort(403);
+            }
+
+            foreach ($validated['marks'] as $markData) {
+                Mark::updateOrCreate(
+                    [
+                        'student_id' => $markData['student_id'],
+                        'section_subject_id' => $validated['section_subject_id'],
+                        'exam_type' => $validated['exam_type'],
+                        'exam_date' => $validated['exam_date'],
+                    ],
+                    [
+                        'marks' => $markData['marks'],
+                        'remarks' => $markData['remarks'] ?? null,
+                        'teacher_id' => $teacher->id,
+                    ]
+                );
+            }
+
+            Activity::create([
+                'actor_name' => $teacher->full_name,
+                'type' => 'Marks Entered',
+                'status' => 'info',
+                'description' => "Marks entered for {$sectionSubject->subject->name}.",
+            ]);
+
+            return back()->with('success', 'Marks saved.');
         }
-
-        foreach ($validated['marks'] as $markData) {
-            Mark::updateOrCreate(
-                [
-                    'student_id' => $markData['student_id'],
-                    'section_subject_id' => $validated['section_subject_id'],
-                    'exam_type' => $validated['exam_type'],
-                    'exam_date' => $validated['exam_date'],
-                ],
-                [
-                    'marks' => $markData['marks'],
-                    'remarks' => $markData['remarks'] ?? null,
-                    'teacher_id' => $teacher->id,
-                ]
-            );
-        }
-
-        return back()->with('success', 'Marks saved.');
-    }
 
     /**
      * Student: show own marks.
@@ -146,6 +153,23 @@ class MarkController extends Controller
             abort(403);
         }
 
+        $marks = Mark::with('sectionSubject.subject:id,name,code')
+            ->where('student_id', $student->id)
+            ->orderBy('exam_date', 'desc')
+            ->get();
+
+        $pdf = Pdf::loadView('pdf.student-marks', compact('student', 'marks'));
+        return $pdf->download("marks-{$student->registration_number}.pdf");
+    }
+
+    public function studentDownloadPdf(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role !== 'student' || !$user->student) {
+            abort(403);
+        }
+
+        $student = $user->student;
         $marks = Mark::with('sectionSubject.subject:id,name,code')
             ->where('student_id', $student->id)
             ->orderBy('exam_date', 'desc')

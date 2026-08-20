@@ -8,7 +8,9 @@ use App\Http\Requests\UpdateStudentRequest;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Section;
+use App\Models\Activity;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
@@ -37,7 +39,7 @@ class StudentController extends Controller
             'role' => 'student',
         ]);
 
-        Student::create([
+        $student = Student::create([
             'user_id' => $user->id,
             'registration_number' => $validated['registration_number'],
             'full_name' => $validated['full_name'],
@@ -48,6 +50,14 @@ class StudentController extends Controller
             'guardian_contact' => $validated['guardian_contact'],
             'section_id' => $validated['section_id'],
             'class_room_id' => $validated['class_room_id'],
+        ]);
+
+        // Log activity
+        Activity::create([
+            'actor_name' => Auth::user()?->name ?? 'System',
+            'type' => 'Student Created',
+            'status' => 'success',
+            'description' => "New student {$student->full_name} added.",
         ]);
 
         return redirect()->route('admin.students.index')->with('success', 'Student added successfully.');
@@ -92,12 +102,28 @@ class StudentController extends Controller
             'class_room_id' => $validated['class_room_id'],
         ]);
 
+        // Log activity
+        Activity::create([
+            'actor_name' => Auth::user()?->name ?? 'System',
+            'type' => 'Student Updated',
+            'status' => 'info',
+            'description' => "Student {$student->full_name} updated.",
+        ]);
+
         return redirect()->route('admin.students.index')->with('success', 'Student updated.');
     }
 
     public function destroy(Student $student): RedirectResponse
     {
         $student->user->delete();
+
+        Activity::create([
+            'actor_name' => Auth::user()?->name ?? 'System',
+            'type' => 'Student Deleted',
+            'status' => 'warning',
+            'description' => "Student {$student->full_name} deleted.",
+        ]);
+
         return back()->with('success', 'Student deleted.');
     }
 }

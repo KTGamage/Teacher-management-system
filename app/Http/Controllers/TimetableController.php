@@ -114,6 +114,13 @@ class TimetableController extends Controller
         return back()->with('success', 'Slot removed.');
     }
 
+    public function update(TimetableSlotRequest $request, TimetableSlot $slot): RedirectResponse
+    {
+        $validated = $request->validated();
+        $slot->update($validated);
+        return back()->with('success', 'Slot updated.');
+    }
+
     public function myTimetable(Request $request)
     {
         $user = $request->user();
