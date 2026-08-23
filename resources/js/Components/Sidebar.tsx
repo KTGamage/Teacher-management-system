@@ -25,7 +25,7 @@ const adminLinks: NavItem[] = [
   { name: 'Teachers', href: '/admin/teachers', icon: UsersIcon },
   { name: 'Students', href: '/admin/students', icon: UserGroupIcon },
   { name: 'Sections', href: '/admin/sections', icon: AcademicCapIcon },
-  { name: 'Subjects', href: '#', icon: BookOpenIcon },
+  { name: 'Subjects', href: '/admin/subjects', icon: BookOpenIcon },
 ];
 
 const teacherLinks: NavItem[] = [
