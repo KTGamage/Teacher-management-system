@@ -17,6 +17,7 @@ class StoreSubjectRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'string', 'max:20', 'unique:subjects,code'],
             'description' => ['nullable', 'string'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 }
