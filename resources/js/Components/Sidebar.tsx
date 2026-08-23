@@ -25,6 +25,8 @@ const adminLinks: NavItem[] = [
   { name: 'Teachers', href: '/admin/teachers', icon: UsersIcon },
   { name: 'Students', href: '/admin/students', icon: UserGroupIcon },
   { name: 'Sections', href: '/admin/sections', icon: AcademicCapIcon },
+  { name: 'Subjects', href: '#', icon: BookOpenIcon },
+  { name: 'Leave Requests', href: '/admin/leaves', icon: ClipboardIcon },
   { name: 'Subjects', href: '/admin/subjects', icon: BookOpenIcon },
 ];
 
@@ -32,6 +34,7 @@ const teacherLinks: NavItem[] = [
   { name: 'Dashboard', href: '/teacher/dashboard', icon: ChartBarIcon },
   { name: 'My Timetable', href: '#', icon: CalendarIcon },
   { name: 'Mark Entry', href: '#', icon: ClipboardIcon },
+  { name: 'Leave Requests', href: '/teacher/leaves', icon: ClipboardIcon },
   { name: 'Profile', href: '/profile', icon: UserIcon },
 ];
 
