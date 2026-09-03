@@ -274,6 +274,7 @@
                 border-radius: 30px;
                 font-size: 16px;
                 font-weight: 600;
+                text-decoration: none;
                 cursor: pointer;
                 transition: all 0.3s ease;
                 display: flex;
@@ -573,9 +574,9 @@
                                     <button class="dashboard-btn btn-submit">
                                         <i class="fas fa-paper-plane"></i> Submit
                                     </button>
-                                    <button class="dashboard-btn btn-leave">
+                                    <a href="{{ route('leave.request') }}" class="dashboard-btn btn-leave">
                                         <i class="fas fa-file-alt"></i> New Leave Form
-                                    </button>
+                                    </a>
                                     <button class="dashboard-btn btn-click">
                                         <i class="fas fa-hand-pointer"></i> Click Here
                                     </button>
@@ -622,10 +623,6 @@
 
             document.querySelector('.btn-submit').addEventListener('click', function() {
                 alert('Submitting...');
-            });
-
-            document.querySelector('.btn-leave').addEventListener('click', function() {
-                alert('Opening leave form...');
             });
 
             document.querySelector('.btn-click').addEventListener('click', function() {
