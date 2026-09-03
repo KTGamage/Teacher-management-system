@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreLeaveRequest;
 use App\Http\Requests\LeaveApprovalRequest;
+use App\Http\Requests\StoreLeaveRequest;
+use App\Mail\LeaveRequestStatusChanged;
+use App\Models\Activity;
 use App\Models\LeaveRequest;
 use App\Models\Section;
-use App\Models\Activity;
 use App\Models\Teacher;
-use App\Mail\LeaveRequestStatusChanged;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
 class LeaveController extends Controller
@@ -24,13 +25,19 @@ class LeaveController extends Controller
     {
         $leaves = LeaveRequest::with('teacher.user')
             ->where(function ($query) {
-                $query->where('status', '!=', 'pending')
+                $query->where('status', 'section_approved')
+                    ->orWhereNotNull('admin_approval_date')
                     ->orWhere(function ($q) {
-                        $q->where('status', 'pending')
-                          ->whereHas('teacher', function ($q2) {
-                              $q2->where('is_section_head', true);
-                          });
+                        $q->where('status', 'rejected')
+                            ->where('section_head_approval', true);
+                    })
+                    ->orWhereHas('teacher', function ($q) {
+                        $q->where('is_section_head', true);
                     });
+            })
+            ->where(function ($query) {
+                $query->whereNull('admin_remarks')
+                    ->orWhere('admin_remarks', '!=', 'Approved directly by section head');
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -47,17 +54,19 @@ class LeaveController extends Controller
     {
         $sectionHead = Auth::user()->teacher;
 
-        if (!$sectionHead || !$sectionHead->is_section_head) {
+        if (! $sectionHead || ! $sectionHead->is_section_head) {
             abort(403);
         }
 
-        $sectionIds = Section::where('section_head_id', $sectionHead->id)->pluck('id');
+        $sectionIds = Section::where('section_head_id', $sectionHead->id)
+            ->where('is_active', true)
+            ->pluck('id');
 
         $teacherIds = Teacher::whereHas('sections', function ($query) use ($sectionIds) {
             $query->whereIn('sections.id', $sectionIds);
         })
-        ->where('id', '!=', $sectionHead->id)
-        ->pluck('id');
+            ->where('id', '!=', $sectionHead->id)
+            ->pluck('id');
 
         $leaves = LeaveRequest::with('teacher.user')
             ->whereIn('teacher_id', $teacherIds)
@@ -126,7 +135,7 @@ class LeaveController extends Controller
     public function sectionForward(LeaveApprovalRequest $request, LeaveRequest $leave)
     {
         $sectionHead = Auth::user()->teacher;
-        if (!$sectionHead || !$sectionHead->is_section_head) abort(403);
+        $this->authorizeSectionHeadAction($sectionHead, $leave);
 
         $leave->update([
             'section_head_approval' => true,
@@ -151,26 +160,28 @@ class LeaveController extends Controller
     public function sectionFinalApprove(LeaveApprovalRequest $request, LeaveRequest $leave)
     {
         $sectionHead = Auth::user()->teacher;
-        if (!$sectionHead || !$sectionHead->is_section_head) abort(403);
+        $this->authorizeSectionHeadAction($sectionHead, $leave);
 
-        $leave->update([
-            'section_head_approval' => true,
-            'section_head_approval_date' => now(),
-            'section_head_remarks' => $request->remarks,
-            'status' => 'admin_approved',
-            'admin_approval' => true,
-            'admin_approval_date' => now(),
-            'admin_remarks' => 'Approved directly by section head',
-        ]);
+        DB::transaction(function () use ($request, $leave, $sectionHead): void {
+            $leave->update([
+                'section_head_approval' => true,
+                'section_head_approval_date' => now(),
+                'section_head_remarks' => $request->remarks,
+                'status' => 'admin_approved',
+                'admin_approval' => false,
+                'admin_approval_date' => null,
+                'admin_remarks' => null,
+            ]);
 
-        Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'approved'));
+            Activity::create([
+                'actor_name' => $sectionHead->full_name,
+                'type' => 'Leave Approved by Section Head',
+                'status' => 'success',
+                'description' => "Leave {$leave->id} approved directly by section head.",
+            ]);
 
-        Activity::create([
-            'actor_name' => $sectionHead->full_name,
-            'type' => 'Leave Approved by Section Head',
-            'status' => 'success',
-            'description' => "Leave {$leave->id} approved directly by section head.",
-        ]);
+            Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'approved', $request->remarks));
+        });
 
         return back()->with('success', 'Leave approved.');
     }
@@ -181,22 +192,25 @@ class LeaveController extends Controller
     public function sectionReject(LeaveApprovalRequest $request, LeaveRequest $leave)
     {
         $sectionHead = Auth::user()->teacher;
-        if (!$sectionHead || !$sectionHead->is_section_head) abort(403);
+        $this->authorizeSectionHeadAction($sectionHead, $leave);
 
-        $leave->update([
-            'section_head_approval' => false,
-            'section_head_remarks' => $request->remarks,
-            'status' => 'rejected',
-        ]);
+        DB::transaction(function () use ($request, $leave, $sectionHead): void {
+            $leave->update([
+                'section_head_approval' => false,
+                'section_head_approval_date' => now(),
+                'section_head_remarks' => $request->remarks,
+                'status' => 'rejected',
+            ]);
 
-        Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'rejected'));
+            Activity::create([
+                'actor_name' => $sectionHead->full_name,
+                'type' => 'Leave Rejected by Section Head',
+                'status' => 'warning',
+                'description' => "Leave {$leave->id} rejected by section head.",
+            ]);
 
-        Activity::create([
-            'actor_name' => $sectionHead->full_name,
-            'type' => 'Leave Rejected by Section Head',
-            'status' => 'warning',
-            'description' => "Leave {$leave->id} rejected by section head.",
-        ]);
+            Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'rejected', $request->remarks));
+        });
 
         return back()->with('success', 'Leave rejected.');
     }
@@ -206,21 +220,25 @@ class LeaveController extends Controller
      */
     public function adminApprove(LeaveApprovalRequest $request, LeaveRequest $leave)
     {
-        $leave->update([
-            'admin_approval' => true,
-            'admin_approval_date' => now(),
-            'admin_remarks' => $request->remarks,
-            'status' => 'admin_approved',
-        ]);
+        $this->authorizeAdminAction($leave);
 
-        Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'approved'));
+        DB::transaction(function () use ($request, $leave): void {
+            $leave->update([
+                'admin_approval' => true,
+                'admin_approval_date' => now(),
+                'admin_remarks' => $request->remarks,
+                'status' => 'admin_approved',
+            ]);
 
-        Activity::create([
-            'actor_name' => Auth::user()->name ?? 'Admin',
-            'type' => 'Leave Approved by Admin',
-            'status' => 'success',
-            'description' => "Leave {$leave->id} approved by admin.",
-        ]);
+            Activity::create([
+                'actor_name' => Auth::user()->name ?? 'Admin',
+                'type' => 'Leave Approved by Admin',
+                'status' => 'success',
+                'description' => "Leave {$leave->id} approved by admin.",
+            ]);
+
+            Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'approved', $request->remarks));
+        });
 
         return back()->with('success', 'Leave approved.');
     }
@@ -230,20 +248,25 @@ class LeaveController extends Controller
      */
     public function adminReject(LeaveApprovalRequest $request, LeaveRequest $leave)
     {
-        $leave->update([
-            'admin_approval' => false,
-            'admin_remarks' => $request->remarks,
-            'status' => 'rejected',
-        ]);
+        $this->authorizeAdminAction($leave);
 
-        Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'rejected'));
+        DB::transaction(function () use ($request, $leave): void {
+            $leave->update([
+                'admin_approval' => false,
+                'admin_approval_date' => now(),
+                'admin_remarks' => $request->remarks,
+                'status' => 'rejected',
+            ]);
 
-        Activity::create([
-            'actor_name' => Auth::user()->name ?? 'Admin',
-            'type' => 'Leave Rejected by Admin',
-            'status' => 'warning',
-            'description' => "Leave {$leave->id} rejected by admin.",
-        ]);
+            Activity::create([
+                'actor_name' => Auth::user()->name ?? 'Admin',
+                'type' => 'Leave Rejected by Admin',
+                'status' => 'warning',
+                'description' => "Leave {$leave->id} rejected by admin.",
+            ]);
+
+            Mail::to($leave->teacher->user->email)->send(new LeaveRequestStatusChanged($leave, 'rejected', $request->remarks));
+        });
 
         return back()->with('success', 'Leave rejected.');
     }
@@ -271,7 +294,7 @@ class LeaveController extends Controller
     public function sectionDestroy(LeaveRequest $leave): RedirectResponse
     {
         $sectionHead = Auth::user()->teacher;
-        if (!$sectionHead || !$sectionHead->is_section_head) abort(403);
+        $this->authorizeSectionHeadAction($sectionHead, $leave);
 
         $leave->delete();
 
@@ -333,6 +356,44 @@ class LeaveController extends Controller
         }
 
         $leave->delete();
+
         return back()->with('success', 'Leave request deleted.');
+    }
+
+    private function authorizeSectionHeadAction(?Teacher $sectionHead, LeaveRequest $leave): void
+    {
+        if (! $sectionHead || ! $sectionHead->is_section_head || $leave->teacher_id === $sectionHead->id) {
+            abort(403);
+        }
+
+        $teacherBelongsToHeadedSection = Section::query()
+            ->where('section_head_id', $sectionHead->id)
+            ->where('is_active', true)
+            ->whereHas('teachers', function ($query) use ($leave) {
+                $query->where('teachers.id', $leave->teacher_id);
+            })
+            ->exists();
+
+        abort_unless($teacherBelongsToHeadedSection, 403);
+        abort_unless(
+            $leave->status === 'pending',
+            409,
+            'Only pending leave requests can be reviewed by a section head.'
+        );
+    }
+
+    private function authorizeAdminAction(LeaveRequest $leave): void
+    {
+        $leave->loadMissing('teacher');
+
+        $isForwardedTeacherRequest = $leave->status === 'section_approved';
+        $isPendingSectionHeadRequest = $leave->status === 'pending'
+            && $leave->teacher->is_section_head;
+
+        abort_unless(
+            $isForwardedTeacherRequest || $isPendingSectionHeadRequest,
+            409,
+            'This leave request is not awaiting an admin decision.'
+        );
     }
 }

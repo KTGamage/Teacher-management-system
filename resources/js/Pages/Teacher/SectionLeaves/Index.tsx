@@ -213,13 +213,13 @@ export default function SectionLeaves({ leaves }: Props) {
                               </button>
                             </>
                           )}
-                          <button
+                          {leave.status === 'pending' ? <button
                             onClick={() => handleDelete(leave.id)}
                             className="text-slate-400 hover:text-red-600 transition"
                             title="Delete request"
                           >
                             <TrashIcon className="h-5 w-5" />
-                          </button>
+                          </button> : null}
                         </div>
                       </td>
                     </tr>

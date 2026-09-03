@@ -95,7 +95,7 @@ Route::middleware('auth')->group(function () {
         // Admin Leaves
         Route::get('/leaves', [LeaveController::class, 'adminIndex'])->name('leaves.index');
         Route::put('/leaves/{leave}/approve', [LeaveController::class, 'adminApprove'])->name('leaves.approve');
-        Route::put('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
+        Route::put('/leaves/{leave}/reject', [LeaveController::class, 'adminReject'])->name('leaves.reject');
         Route::delete('/leaves/{leave}', [LeaveController::class, 'adminDestroy'])->name('leaves.destroy');
     });
 
