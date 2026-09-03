@@ -187,6 +187,12 @@
                 padding: 22px;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.12);
                 border-left: 5px solid #0066ff;
+                transition: transform 0.25s ease, box-shadow 0.25s ease;
+            }
+
+            .teacher-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.18);
             }
 
             .teacher-card.section-head {
@@ -242,7 +248,8 @@
             .back-btn:hover {
                 background: rgba(0, 102, 255, 0.1);
                 color: #0066ff;
-                transform: translateY(-2px);
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 4px 12px rgba(0, 102, 255, 0.15);
             }
 
             footer {
