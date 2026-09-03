@@ -26,3 +26,7 @@ Route::get('/login', function () {
 Route::get('/teacher-dashboard', function () {
     return view('teacherDashboard');
 });
+
+Route::get('/leave-request', function () {
+    return view('leaveRequest');
+})->name('leave.request');
