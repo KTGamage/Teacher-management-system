@@ -9,6 +9,11 @@
 
   html {
     font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-darkred;
   }
 
   body {
