@@ -131,3 +131,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/marks/pdf', [MarkController::class, 'downloadPdf'])->name('marks.pdf');
     });
 });
+
+Route::get('/login', function () {
+    return view('login');
+})->name('login');
+
+Route::get('/teacher-directory', function () {
+    return view('teacherDirectory');
+})->name('teacher.directory');
