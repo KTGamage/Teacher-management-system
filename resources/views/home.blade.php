@@ -53,6 +53,7 @@
                 line-height: 1.2;
                 margin-top: 20px;
                 margin-bottom: 10px;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
             }
 
             .text2 {
@@ -61,6 +62,7 @@
                 font-weight: bold;
                 text-align: center;
                 margin-bottom: 30px;
+                text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
             }
 
             .welcome_section {
@@ -123,8 +125,8 @@
 
             .loginbtn:hover {
                 background-color: #0000cc;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 255, 0.3);
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 6px 12px rgba(0, 0, 255, 0.3);
             }
 
             .registerbtn {
@@ -134,8 +136,8 @@
 
             .registerbtn:hover {
                 background-color: #f0f0f0;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 6px 12px rgba(255, 255, 255, 0.3);
             }
 
             footer {
